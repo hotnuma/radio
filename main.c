@@ -141,6 +141,34 @@ bool command_list(CIniFile *inifile)
     return true;
 }
 
+bool command_show(CIniFile *inifile, const char *name)
+{
+    if (!inifile || !name)
+        return false;
+
+    RadioEntry *radio = radio_new();
+
+    if (!config_find(inifile, radio, name)
+        || cstr_isempty(radio->url))
+    {
+        radio_free(radio);
+        return false;
+    }
+
+    printf("name:   %s\n", name);
+    printf("url:    %s\n", c_str(radio->url));
+
+    if (!cstr_isempty(radio->af))
+        printf("af:     %s\n", c_str(radio->af));
+
+    if (!cstr_isempty(radio->volume))
+        printf("volume: %s\n", c_str(radio->volume));
+
+    radio_free(radio);
+
+    return true;
+}
+
 bool command_play(CIniFile *inifile, const char *name)
 {
     if (!inifile || !name)
@@ -210,6 +238,9 @@ int main(int argc, const char **argv)
     if (!cinifile_read(inifile, c_str(inipath)))
         return EXIT_FAILURE;
 
+    if (argc < 2)
+        usage_exit();
+
     int n = 1;
 
     while (n < argc)
@@ -255,10 +286,7 @@ int main(int argc, const char **argv)
             if (++n >= argc)
                 usage_exit();
 
-            //test "$#" -eq 2 || usage_exit
-            //cat "$radios/$2"
-            //echo
-            //exit 0
+            command_show(inifile, argv[n]);
 
             return EXIT_SUCCESS;
         }
