@@ -42,53 +42,48 @@ typedef struct _RadioEntry
 
 RadioEntry* radio_new()
 {
-    RadioEntry *entry = (RadioEntry*) malloc(sizeof(RadioEntry));
+    RadioEntry *radio = (RadioEntry*) malloc(sizeof(RadioEntry));
 
-    entry->url = cstr_new_size(128);
-    entry->volume = cstr_new_size(4);
-    entry->af = cstr_new_size(128);
+    radio->url = cstr_new_size(128);
+    radio->volume = cstr_new_size(4);
+    radio->af = cstr_new_size(128);
 
-    return entry;
+    return radio;
 }
 
-void radio_clear(RadioEntry *entry)
+void radio_free(RadioEntry *radio)
 {
-    cstr_clear(entry->url);
-    cstr_clear(entry->volume);
-    cstr_clear(entry->af);
-}
-
-void radio_free(RadioEntry *entry)
-{
-    if (!entry)
+    if (!radio)
         return;
 
-    cstr_free(entry->url);
-    cstr_free(entry->volume);
-    cstr_free(entry->af);
+    cstr_free(radio->url);
+    cstr_free(radio->volume);
+    cstr_free(radio->af);
 
-    free(entry);
+    free(radio);
 }
 
-bool radio_find(RadioEntry *entry, const char *inipath, const char *name)
+void radio_clear(RadioEntry *radio)
 {
-    if (!entry)
-        return false;
+    cstr_clear(radio->url);
+    cstr_clear(radio->volume);
+    cstr_clear(radio->af);
+}
 
-    CIniFileAuto *inifile = cinifile_new();
-
-    if (!cinifile_read(inifile, inipath))
+bool radio_find(RadioEntry *radio, CIniFile *inifile, const char *name)
+{
+    if (!radio || !inifile || !name)
         return false;
 
     CIniSection *section = cinifile_section(inifile, name);
     if (!section)
         return false;
 
-    if (!cinisection_value(section, entry->url, "url", ""))
+    if (!cinisection_value(section, radio->url, "url", ""))
         return false;
 
-    cinisection_value(section, entry->volume, "volume", "");
-    cinisection_value(section, entry->af, "af", "");
+    cinisection_value(section, radio->volume, "volume", "");
+    cinisection_value(section, radio->af, "af", "");
 
     return true;
 }
@@ -99,12 +94,29 @@ void radio_get_config(CString *result)
     cstr_append(result, "/.config/radio.list");
 }
 
-bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
+bool command_list(CIniFile *inifile)
 {
-    if (!inipath || !radio || !name)
+    if (!inifile)
         return false;
 
-    radio_clear(radio);
+    int size = cinifile_size(inifile);
+
+    for (int i = 0; i < size; ++i)
+    {
+        CIniSection *iniSection = cinifile_section_at(inifile, i);
+
+        printf("%s\n", c_str(cinisection_name(iniSection)));
+    }
+
+    return true;
+}
+
+bool command_play(CIniFile *inifile, const char *name)
+{
+    if (!inifile || !name)
+        return false;
+
+    RadioEntry *radio = radio_new();
 
     CStringAuto *cmd = cstr_new_size(128);
     cstr_copy(cmd, "ffplay -nodisp");
@@ -120,8 +132,11 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
 
     else
     {
-        if (!radio_find(radio, c_str(inipath), name))
+        if (!radio_find(radio, inifile, name))
+        {
+            radio_free(radio);
             return false;
+        }
     }
 
     if (cstr_isempty(radio->af)
@@ -150,6 +165,7 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
     printf("%s\n", c_str(cmd));
     system(c_str(cmd));
 
+    radio_free(radio);
     return true;
 }
 
@@ -158,7 +174,10 @@ int main(int argc, const char **argv)
     CStringAuto *inipath = cstr_new_size(64);
     radio_get_config(inipath);
 
-    RadioEntry *radio = radio_new();
+    CIniFileAuto *inifile = cinifile_new();
+
+    if (!cinifile_read(inifile, c_str(inipath)))
+        return EXIT_FAILURE;
 
     int n = 1;
 
@@ -187,11 +206,7 @@ int main(int argc, const char **argv)
         }
         else if (strcmp(argv[n], "-list") == 0)
         {
-            if (++n >= argc)
-                usage_exit();
-
-            //ls -la "$radios"
-            //exit 0
+            command_list(inifile);
 
             return EXIT_SUCCESS;
         }
@@ -237,20 +252,13 @@ int main(int argc, const char **argv)
         else
         {
             if (n + 1 != argc)
-            {
-                radio_free(radio);
                 usage_exit();
-            }
-            else if (argv[n][0] == '-')
-            {
-                radio_free(radio);
+
+            if (argv[n][0] == '-')
                 error_exit("invalid option");
-            }
-            else if (!radio_play(inipath, radio, argv[n]))
-            {
-                radio_free(radio);
+
+            if (!command_play(inifile, argv[n]))
                 error_exit("radio not found\n");
-            }
 
             break;
         }
@@ -258,7 +266,6 @@ int main(int argc, const char **argv)
         ++n;
     }
 
-    radio_free(radio);
     return EXIT_SUCCESS;
 }
 
