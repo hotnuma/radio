@@ -29,10 +29,6 @@ static void usage_exit()
     printf("%s -list\n", APPNAME);
     printf("%s -stop\n", APPNAME);
 
-    //printf("%s -add \"name\" \"https://my/radio/stream\"\n", APPNAME);
-    //printf("%s -show \"name\"\n", APPNAME);
-    //printf("%s -remove \"name\"\n", APPNAME);
-
     printf("abort...\n");
 
     exit(EXIT_FAILURE);
@@ -245,41 +241,20 @@ int main(int argc, const char **argv)
 
     while (n < argc)
     {
-        if (strcmp(argv[n], "-add") == 0)
-        {
-            if (++n >= argc)
-                usage_exit();
-
-            //add_file "$2" "$3"
-            //exit 0
-
-            return EXIT_SUCCESS;
-        }
-        else if (strcmp(argv[n], "-infos") == 0)
+        if (strcmp(argv[n], "-infos") == 0)
         {
             if (++n >= argc)
                 usage_exit();
 
             command_infos(inifile, argv[n]);
 
-            return EXIT_SUCCESS;
+            break;
         }
         else if (strcmp(argv[n], "-list") == 0)
         {
             command_list(inifile);
 
-            return EXIT_SUCCESS;
-        }
-        else if (strcmp(argv[n], "-remove") == 0)
-        {
-            if (++n >= argc)
-                usage_exit();
-
-            //test "$#" -eq 2 || usage_exit
-            //rm "$radios/$2"
-            //exit 0
-
-            return EXIT_SUCCESS;
+            break;
         }
         else if (strcmp(argv[n], "-show") == 0)
         {
@@ -288,23 +263,13 @@ int main(int argc, const char **argv)
 
             command_show(inifile, argv[n]);
 
-            return EXIT_SUCCESS;
+            break;
         }
         else if (strcmp(argv[n], "-stop") == 0)
         {
             system("pkill ffplay");
+
             break;
-        }
-        else if (strcmp(argv[n], "-volume") == 0)
-        {
-            if (++n >= argc)
-                usage_exit();
-
-            //test "$#" -gt 1 || usage_exit
-            //shift
-            //opt_volume="$1"
-
-            return EXIT_SUCCESS;
         }
         else
         {
