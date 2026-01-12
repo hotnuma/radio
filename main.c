@@ -112,7 +112,7 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
     if (strncmp(name, "http://", strlen(name)) == 0
         || strncmp(name, "https://", strlen(name)) == 0)
     {
-        cstr_copy(radio, name);
+        cstr_copy(cmd, name);
     }
 
     //if [[ -f "$1" ]]; then
