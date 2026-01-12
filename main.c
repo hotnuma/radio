@@ -19,14 +19,14 @@
 static void usage_exit()
 {
     printf("*** usage :\n");
-    printf("%s -list\n", APPNAME);
-    printf("%s -add \"name\" \"https://my/radio/stream\"\n", APPNAME);
-    printf("%s -show \"name\"\n", APPNAME);
-    printf("%s -remove \"name\"\n", APPNAME);
     printf("%s \"name\"\n", APPNAME);
-    printf("%s \"https://my/radio/stream\"\n", APPNAME);
-    printf("%s \"path/to/file.mp3\"\n", APPNAME);
-    printf("%s -stop\n", APPNAME);
+    //printf("%s -list\n", APPNAME);
+    //printf("%s -add \"name\" \"https://my/radio/stream\"\n", APPNAME);
+    //printf("%s -show \"name\"\n", APPNAME);
+    //printf("%s -remove \"name\"\n", APPNAME);
+    //printf("%s \"https://my/radio/stream\"\n", APPNAME);
+    //printf("%s \"path/to/file.mp3\"\n", APPNAME);
+    //printf("%s -stop\n", APPNAME);
     printf("abort...\n");
 
     exit(EXIT_FAILURE);
@@ -49,6 +49,13 @@ RadioEntry* radio_new()
     entry->af = cstr_new_size(128);
 
     return entry;
+}
+
+void radio_clear(RadioEntry *entry)
+{
+    cstr_clear(entry->url);
+    cstr_clear(entry->volume);
+    cstr_clear(entry->af);
 }
 
 void radio_free(RadioEntry *entry)
@@ -94,27 +101,28 @@ void radio_get_config(CString *result)
 
 bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
 {
-    //printf("%s\n", name);
-
-    if (!radio_find(radio, c_str(inipath), name))
+    if (!inipath || !radio || !name)
         return false;
 
-    //printf("url = %s\n", c_str(radio->url));
-
-    //opt_url=""
-
-    //if [[ -f "$1" ]]; then
-    //    opt_url="$1"
-    //elif [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]]; then
-    //    opt_url="$1"
-    //else
-    //    filepath="$radios/$1"
-    //    test -f "$filepath" || error_exit "invalid file"
-    //    parse_file "$filepath"
-    //fi
+    radio_clear(radio);
 
     CStringAuto *cmd = cstr_new_size(128);
     cstr_copy(cmd, "ffplay -nodisp");
+
+    if (strncmp(name, "http://", strlen(name)) == 0
+        || strncmp(name, "https://", strlen(name)) == 0)
+    {
+        cstr_copy(radio, name);
+    }
+
+    //if [[ -f "$1" ]]; then
+    //    opt_url="$1"
+
+    else
+    {
+        if (!radio_find(radio, c_str(inipath), name))
+            return false;
+    }
 
     if (!cstr_isempty(radio->af))
     {
