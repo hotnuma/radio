@@ -12,16 +12,6 @@ add_file()
     printf "url=$2\n" >> "$filepath"
 }
 
-probe_file()
-{
-    echo "infos: $1"
-    filepath="$radios/$1"
-    test -f "$filepath" || error_exit "invalid file"
-    opt_url=""
-    parse_file "$filepath"
-    ffprobe -hide_banner "$opt_url"
-}
-
 test "$#" -gt 0 || usage_exit
 
 #endif

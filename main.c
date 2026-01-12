@@ -70,7 +70,13 @@ void radio_clear(RadioEntry *radio)
     cstr_clear(radio->af);
 }
 
-bool radio_find(RadioEntry *radio, CIniFile *inifile, const char *name)
+void config_get_path(CString *result)
+{
+    get_homedir(result);
+    cstr_append(result, "/.config/radio.list");
+}
+
+bool config_find(CIniFile *inifile, RadioEntry *radio, const char *name)
 {
     if (!radio || !inifile || !name)
         return false;
@@ -88,10 +94,28 @@ bool radio_find(RadioEntry *radio, CIniFile *inifile, const char *name)
     return true;
 }
 
-void radio_get_config(CString *result)
+bool command_infos(CIniFile *inifile, const char *name)
 {
-    get_homedir(result);
-    cstr_append(result, "/.config/radio.list");
+    RadioEntry *radio = radio_new();
+
+    if (!config_find(inifile, radio, name))
+    {
+        radio_free(radio);
+        return false;
+    }
+
+    printf("infos: %s\n", name);
+
+    CStringAuto *cmd = cstr_new_size(128);
+    cstr_copy(cmd, "ffprobe -hide_banner \"");
+    cstr_append(cmd, c_str(radio->url));
+    cstr_append(cmd, "\"");
+
+    system(c_str(cmd));
+
+    radio_free(radio);
+
+    return true;
 }
 
 bool command_list(CIniFile *inifile)
@@ -132,7 +156,7 @@ bool command_play(CIniFile *inifile, const char *name)
 
     else
     {
-        if (!radio_find(radio, inifile, name))
+        if (!config_find(inifile, radio, name))
         {
             radio_free(radio);
             return false;
@@ -172,7 +196,7 @@ bool command_play(CIniFile *inifile, const char *name)
 int main(int argc, const char **argv)
 {
     CStringAuto *inipath = cstr_new_size(64);
-    radio_get_config(inipath);
+    config_get_path(inipath);
 
     CIniFileAuto *inifile = cinifile_new();
 
@@ -198,9 +222,7 @@ int main(int argc, const char **argv)
             if (++n >= argc)
                 usage_exit();
 
-            //test "$#" -eq 2 || usage_exit
-            //probe_file "$2"
-            //exit 0
+            command_infos(inifile, argv[n]);
 
             return EXIT_SUCCESS;
         }
