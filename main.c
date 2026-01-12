@@ -35,6 +35,7 @@ static void usage_exit()
 typedef struct _RadioEntry
 {
     CString *url;
+    CString *volume;
     CString *af;
 
 } RadioEntry;
@@ -44,6 +45,7 @@ RadioEntry* radio_new()
     RadioEntry *entry = (RadioEntry*) malloc(sizeof(RadioEntry));
 
     entry->url = cstr_new_size(128);
+    entry->volume = cstr_new_size(4);
     entry->af = cstr_new_size(128);
 
     return entry;
@@ -55,7 +57,10 @@ void radio_free(RadioEntry *entry)
         return;
 
     cstr_free(entry->url);
+    cstr_free(entry->volume);
     cstr_free(entry->af);
+
+    free(entry);
 }
 
 bool radio_find(RadioEntry *entry, const char *inipath, const char *name)
@@ -75,6 +80,7 @@ bool radio_find(RadioEntry *entry, const char *inipath, const char *name)
     if (!cinisection_value(section, entry->url, "url", ""))
         return false;
 
+    cinisection_value(section, entry->volume, "volume", "");
     cinisection_value(section, entry->af, "af", "");
 
     return true;
@@ -88,12 +94,12 @@ void radio_get_config(CString *result)
 
 bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
 {
-    printf("%s\n", name);
+    //printf("%s\n", name);
 
     if (!radio_find(radio, c_str(inipath), name))
         return false;
 
-    printf("url = %s\n", c_str(radio->url));
+    //printf("url = %s\n", c_str(radio->url));
 
     //opt_url=""
 
@@ -110,16 +116,18 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
     CStringAuto *cmd = cstr_new_size(128);
     cstr_copy(cmd, "ffplay -nodisp");
 
-    //volume="volume=volume=$opt_volume/100"
-    //if [[ $opt_af != "" ]]; then
-
-    cstr_append(cmd, " -af \"");
-    cstr_append(cmd, c_str(radio->af));
-    cstr_append(cmd, "\"");
-
-    //else
-    //    cmd+=" -af \"$volume\""
-    //fi
+    if (!cstr_isempty(radio->af))
+    {
+        cstr_append(cmd, " -af \"");
+        cstr_append(cmd, c_str(radio->af));
+        cstr_append(cmd, "\"");
+    }
+    else
+    {
+        cstr_append(cmd, " -af \"volume=volume=");
+        cstr_append(cmd, c_str(radio->volume));
+        cstr_append(cmd, "/100\"");
+    }
 
     cstr_append(cmd, " ");
     cstr_append(cmd, c_str(radio->url));
@@ -127,6 +135,7 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
     cstr_append(cmd, " > /dev/null 2>&1 &");
 
     system("pkill ffplay");
+
     printf("%s\n", c_str(cmd));
     system(c_str(cmd));
 
