@@ -124,17 +124,19 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
             return false;
     }
 
+    if (cstr_isempty(radio->af)
+        && !cstr_isempty(radio->volume))
+    {
+        cstr_copy(radio->af, "volume=volume=");
+        cstr_append(radio->af, c_str(radio->volume));
+        cstr_append(radio->af, "/100");
+    }
+
     if (!cstr_isempty(radio->af))
     {
         cstr_append(cmd, " -af \"");
         cstr_append(cmd, c_str(radio->af));
         cstr_append(cmd, "\"");
-    }
-    else if (!cstr_isempty(radio->volume))
-    {
-        cstr_append(cmd, " -af \"volume=volume=");
-        cstr_append(cmd, c_str(radio->volume));
-        cstr_append(cmd, "/100\"");
     }
 
     cstr_append(cmd, " \"");
