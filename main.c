@@ -4,17 +4,17 @@
 
 #define APPNAME "radio"
 
-//static void error_exit(const char *msg)
-//{
-//    if (!msg || *msg == '\0')
-//    {
-//        msg = "an error occurred";
-//    }
+static void error_exit(const char *msg)
+{
+    if (!msg || *msg == '\0')
+    {
+        msg = "an error occurred";
+    }
 
-//    printf("*** %s\nabort...\n", msg);
+    printf("*** %s\nabort...\n", msg);
 
-//    exit(EXIT_FAILURE);
-//}
+    exit(EXIT_FAILURE);
+}
 
 static void usage_exit()
 {
@@ -164,28 +164,101 @@ int main(int argc, const char **argv)
 
     while (n < argc)
     {
-        if (strcmp(argv[n], "-opt") == 0)
-        {
-            return EXIT_SUCCESS;
-        }
-        else if (strcmp(argv[n], "-arg") == 0)
+        if (strcmp(argv[n], "-add") == 0)
         {
             if (++n >= argc)
                 usage_exit();
+
+            //add_file "$2" "$3"
+            //exit 0
+
+            return EXIT_SUCCESS;
+        }
+        else if (strcmp(argv[n], "-infos") == 0)
+        {
+            if (++n >= argc)
+                usage_exit();
+
+            //test "$#" -eq 2 || usage_exit
+            //probe_file "$2"
+            //exit 0
+
+            return EXIT_SUCCESS;
+        }
+        else if (strcmp(argv[n], "-list") == 0)
+        {
+            if (++n >= argc)
+                usage_exit();
+
+            //ls -la "$radios"
+            //exit 0
+
+            return EXIT_SUCCESS;
+        }
+        else if (strcmp(argv[n], "-remove") == 0)
+        {
+            if (++n >= argc)
+                usage_exit();
+
+            //test "$#" -eq 2 || usage_exit
+            //rm "$radios/$2"
+            //exit 0
+
+            return EXIT_SUCCESS;
+        }
+        else if (strcmp(argv[n], "-show") == 0)
+        {
+            if (++n >= argc)
+                usage_exit();
+
+            //test "$#" -eq 2 || usage_exit
+            //cat "$radios/$2"
+            //echo
+            //exit 0
+
+            return EXIT_SUCCESS;
+        }
+        else if (strcmp(argv[n], "-stop") == 0)
+        {
+            system("pkill ffplay");
+            break;
+        }
+        else if (strcmp(argv[n], "-volume") == 0)
+        {
+            if (++n >= argc)
+                usage_exit();
+
+            //test "$#" -gt 1 || usage_exit
+            //shift
+            //opt_volume="$1"
 
             return EXIT_SUCCESS;
         }
         else
         {
-            if (!radio_play(inipath, radio, argv[n]))
-                printf("radio not found\n");
+            if (n + 1 != argc)
+            {
+                radio_free(radio);
+                usage_exit();
+            }
+            else if (argv[n][0] == '-')
+            {
+                radio_free(radio);
+                error_exit("invalid option");
+            }
+            else if (!radio_play(inipath, radio, argv[n]))
+            {
+                radio_free(radio);
+                error_exit("radio not found\n");
+            }
+
+            break;
         }
 
         ++n;
     }
 
     radio_free(radio);
-
     return EXIT_SUCCESS;
 }
 
