@@ -24,13 +24,6 @@ probe_file()
 
 test "$#" -gt 0 || usage_exit
 
-while (($#)); do
-    case "$1" in
-    esac
-    shift
-done
-
-
 #endif
 
 
