@@ -1,4 +1,5 @@
 #include <cinifile.h>
+#include <cfile.h>
 #include <libapp.h>
 #include <stdio.h>
 
@@ -19,14 +20,19 @@ static void error_exit(const char *msg)
 static void usage_exit()
 {
     printf("*** usage :\n");
+
     printf("%s \"name\"\n", APPNAME);
-    //printf("%s -list\n", APPNAME);
+    printf("%s \"https://my/radio/stream\"\n", APPNAME);
+    printf("%s \"path/to/file.mp3\"\n", APPNAME);
+
+    printf("%s -infos \"name\"\n", APPNAME);
+    printf("%s -list\n", APPNAME);
+    printf("%s -stop\n", APPNAME);
+
     //printf("%s -add \"name\" \"https://my/radio/stream\"\n", APPNAME);
     //printf("%s -show \"name\"\n", APPNAME);
     //printf("%s -remove \"name\"\n", APPNAME);
-    //printf("%s \"https://my/radio/stream\"\n", APPNAME);
-    //printf("%s \"path/to/file.mp3\"\n", APPNAME);
-    //printf("%s -stop\n", APPNAME);
+
     printf("abort...\n");
 
     exit(EXIT_FAILURE);
@@ -148,12 +154,12 @@ bool command_play(CIniFile *inifile, const char *name)
     if (strncmp(name, "http://", strlen(name)) == 0
         || strncmp(name, "https://", strlen(name)) == 0)
     {
-        cstr_copy(cmd, name);
+        cstr_copy(radio->url, name);
     }
-
-    //if [[ -f "$1" ]]; then
-    //    opt_url="$1"
-
+    else if (file_exists("name"))
+    {
+        cstr_copy(radio->url, name);
+    }
     else
     {
         if (!config_find(inifile, radio, name))
@@ -190,6 +196,7 @@ bool command_play(CIniFile *inifile, const char *name)
     system(c_str(cmd));
 
     radio_free(radio);
+
     return true;
 }
 
