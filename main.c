@@ -87,11 +87,11 @@ bool config_find(CIniFile *inifile, RadioEntry *radio, const char *name)
     if (!section)
         return false;
 
-    if (!cinisection_value(section, radio->url, "url", ""))
+    if (!cinisection_key_value(section, radio->url, "url", ""))
         return false;
 
-    cinisection_value(section, radio->volume, "volume", "");
-    cinisection_value(section, radio->af, "af", "");
+    cinisection_key_value(section, radio->volume, "volume", "");
+    cinisection_key_value(section, radio->af, "af", "");
 
     return true;
 }
