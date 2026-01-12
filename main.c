@@ -130,15 +130,16 @@ bool radio_play(CString *inipath, RadioEntry *radio, const char *name)
         cstr_append(cmd, c_str(radio->af));
         cstr_append(cmd, "\"");
     }
-    else
+    else if (!cstr_isempty(radio->volume))
     {
         cstr_append(cmd, " -af \"volume=volume=");
         cstr_append(cmd, c_str(radio->volume));
         cstr_append(cmd, "/100\"");
     }
 
-    cstr_append(cmd, " ");
+    cstr_append(cmd, " \"");
     cstr_append(cmd, c_str(radio->url));
+    cstr_append(cmd, "\"");
 
     cstr_append(cmd, " > /dev/null 2>&1 &");
 
