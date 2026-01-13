@@ -48,7 +48,7 @@ RadioEntry* radio_new()
     RadioEntry *radio = (RadioEntry*) malloc(sizeof(RadioEntry));
 
     radio->url = cstr_new_size(128);
-    radio->volume = cstr_new(DEFAULT_VOLUME);
+    radio->volume = cstr_new_size(4);
     radio->af = cstr_new_size(128);
 
     return radio;
@@ -69,7 +69,7 @@ void radio_free(RadioEntry *radio)
 void radio_clear(RadioEntry *radio)
 {
     cstr_clear(radio->url);
-    cstr_copy(radio->volume, DEFAULT_VOLUME);
+    cstr_clear(radio->volume);
     cstr_clear(radio->af);
 }
 
@@ -193,6 +193,9 @@ bool command_play(CIniFile *inifile, const char *name)
             return false;
         }
     }
+
+    if (cstr_isempty(radio->volume))
+        cstr_copy(radio->volume, DEFAULT_VOLUME);
 
     if (cstr_isempty(radio->af)
         && !cstr_isempty(radio->volume))
