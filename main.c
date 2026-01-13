@@ -205,9 +205,9 @@ bool command_play(CIniFile *inifile, const char *name)
     }
     else if (!cstr_isempty(radio->volume))
     {
-        cstr_copy(radio->af, "volume=volume=");
-        cstr_append(radio->af, c_str(radio->volume));
-        cstr_append(radio->af, "/100");
+        cstr_append(cmd, " -af \"volume=volume=");
+        cstr_append(cmd, c_str(radio->volume));
+        cstr_append(cmd, "/100\"");
     }
 
     cstr_append(cmd, " \"");
