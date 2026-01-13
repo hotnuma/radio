@@ -197,19 +197,17 @@ bool command_play(CIniFile *inifile, const char *name)
     if (cstr_isempty(radio->volume))
         cstr_copy(radio->volume, DEFAULT_VOLUME);
 
-    if (cstr_isempty(radio->af)
-        && !cstr_isempty(radio->volume))
-    {
-        cstr_copy(radio->af, "volume=volume=");
-        cstr_append(radio->af, c_str(radio->volume));
-        cstr_append(radio->af, "/100");
-    }
-
     if (!cstr_isempty(radio->af))
     {
         cstr_append(cmd, " -af \"");
         cstr_append(cmd, c_str(radio->af));
         cstr_append(cmd, "\"");
+    }
+    else if (!cstr_isempty(radio->volume))
+    {
+        cstr_copy(radio->af, "volume=volume=");
+        cstr_append(radio->af, c_str(radio->volume));
+        cstr_append(radio->af, "/100");
     }
 
     cstr_append(cmd, " \"");
