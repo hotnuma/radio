@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #define APPNAME "radio"
+#define DEFAULT_VOLUME "66"
 
 static void error_exit(const char *msg)
 {
@@ -47,7 +48,7 @@ RadioEntry* radio_new()
     RadioEntry *radio = (RadioEntry*) malloc(sizeof(RadioEntry));
 
     radio->url = cstr_new_size(128);
-    radio->volume = cstr_new_size(4);
+    radio->volume = cstr_new(DEFAULT_VOLUME);
     radio->af = cstr_new_size(128);
 
     return radio;
@@ -68,7 +69,7 @@ void radio_free(RadioEntry *radio)
 void radio_clear(RadioEntry *radio)
 {
     cstr_clear(radio->url);
-    cstr_clear(radio->volume);
+    cstr_copy(radio->volume, DEFAULT_VOLUME);
     cstr_clear(radio->af);
 }
 
