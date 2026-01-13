@@ -175,8 +175,8 @@ bool command_play(CIniFile *inifile, const char *name)
     CStringAuto *cmd = cstr_new_size(128);
     cstr_copy(cmd, "ffplay -nodisp");
 
-    if (strncmp(name, "http://", strlen(name)) == 0
-        || strncmp(name, "https://", strlen(name)) == 0)
+    if (strncmp(name, "http://", 7) == 0
+        || strncmp(name, "https://", 8) == 0)
     {
         cstr_copy(radio->url, name);
     }
