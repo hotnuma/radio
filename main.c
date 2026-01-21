@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #define APPNAME "radio"
-#define DEFAULT_VOLUME "50"
+#define DEFAULT_VOLUME "66"
 
 static void error_exit(const char *msg)
 {
