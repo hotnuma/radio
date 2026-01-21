@@ -141,7 +141,7 @@ bool command_infos(CIniFile *inifile, const char *name)
     return true;
 }
 
-bool command_list(CIniFile *inifile)
+bool command_complist(CIniFile *inifile)
 {
     if (!inifile)
         return false;
@@ -155,6 +155,23 @@ bool command_list(CIniFile *inifile)
         if (i > 0)
             printf(" ");
         printf("%s", c_str(cinisection_name(iniSection)));
+    }
+
+    return true;
+}
+
+bool command_list(CIniFile *inifile)
+{
+    if (!inifile)
+        return false;
+
+    int size = cinifile_size(inifile);
+
+    for (int i = 0; i < size; ++i)
+    {
+        CIniSection *iniSection = cinifile_section_at(inifile, i);
+
+        printf("%s\n", c_str(cinisection_name(iniSection)));
     }
 
     return true;
@@ -312,6 +329,12 @@ int main(int argc, const char **argv)
                 usage_exit();
 
             command_infos(inifile, argv[n]);
+
+            break;
+        }
+        else if (strcmp(argv[n], "-complist") == 0)
+        {
+            command_complist(inifile);
 
             break;
         }

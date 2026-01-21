@@ -10,7 +10,7 @@ _radio()
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     else
-        opts=$(radio -list)
+        opts=$(radio -complist)
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
