@@ -29,6 +29,7 @@ static void usage_exit()
     printf("%s -infos \"name\"\n", APPNAME);
     printf("%s -list\n", APPNAME);
     printf("%s -stop\n", APPNAME);
+    printf("%s -web\n", APPNAME);
 
     printf("abort...\n");
 
@@ -40,6 +41,7 @@ typedef struct _RadioEntry
     CString *url;
     CString *volume;
     CString *af;
+    CString *web;
 
 } RadioEntry;
 
@@ -50,6 +52,7 @@ RadioEntry* radio_new()
     radio->url = cstr_new_size(128);
     radio->volume = cstr_new_size(4);
     radio->af = cstr_new_size(128);
+    radio->web = cstr_new_size(128);
 
     return radio;
 }
@@ -62,6 +65,7 @@ void radio_free(RadioEntry *radio)
     cstr_free(radio->url);
     cstr_free(radio->volume);
     cstr_free(radio->af);
+    cstr_free(radio->web);
 
     free(radio);
 }
@@ -71,6 +75,7 @@ void radio_clear(RadioEntry *radio)
     cstr_clear(radio->url);
     cstr_clear(radio->volume);
     cstr_clear(radio->af);
+    cstr_clear(radio->web);
 }
 
 void config_get_path(CString *result)
@@ -93,6 +98,7 @@ bool config_find(CIniFile *inifile, RadioEntry *radio, const char *name)
 
     cinisection_key_value(section, radio->volume, "volume", "");
     cinisection_key_value(section, radio->af, "af", "");
+    cinisection_key_value(section, radio->web, "web", "");
 
     return true;
 }
@@ -160,6 +166,41 @@ bool command_show(CIniFile *inifile, const char *name)
 
     if (!cstr_isempty(radio->volume))
         printf("volume: %s\n", c_str(radio->volume));
+
+    if (!cstr_isempty(radio->web))
+        printf("web:    %s\n", c_str(radio->web));
+
+    radio_free(radio);
+
+    return true;
+}
+
+bool command_web(CIniFile *inifile, const char *name)
+{
+    if (!inifile || !name)
+        return false;
+
+    RadioEntry *radio = radio_new();
+
+    if (!config_find(inifile, radio, name)
+        || cstr_isempty(radio->url))
+    {
+        radio_free(radio);
+        return false;
+    }
+
+    if (cstr_isempty(radio->web)
+        || (!cstr_startswith(radio->web, "http://", false)
+            && !cstr_startswith(radio->web, "https://", false)))
+    {
+        radio_free(radio);
+        return false;
+    }
+
+    CStringAuto *cmd = cstr_new_size(128);
+    cstr_fmt(cmd, "firefox \"%s\"", c_str(radio->web));
+
+    system(c_str(cmd));
 
     radio_free(radio);
 
@@ -270,6 +311,15 @@ int main(int argc, const char **argv)
         else if (strcmp(argv[n], "-stop") == 0)
         {
             system("pkill ffplay");
+
+            break;
+        }
+        else if (strcmp(argv[n], "-web") == 0)
+        {
+            if (++n >= argc)
+                usage_exit();
+
+            command_web(inifile, argv[n]);
 
             break;
         }
