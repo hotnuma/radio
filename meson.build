@@ -6,6 +6,20 @@ project(
     license: 'GPL-2.0',
 )
 
+bash_completion = configure_file(
+    input: 'radio.comp',
+    output: 'radio',
+    copy: true,
+    #configuration: conf_data
+)
+
+bash_comp = dependency('bash-completion', required: false)
+if bash_comp.found()
+    bash_compdir = bash_comp.get_variable(pkgconfig: 'completionsdir')
+else
+    bash_compdir = join_paths(datadir, 'bash-completion', 'completions')
+endif
+
 c_args = [
     '-Wall',
     '-Wextra',
@@ -31,4 +45,5 @@ executable(
     install: true,
 )
 
+install_data(bash_completion, install_dir: bash_compdir)
 
