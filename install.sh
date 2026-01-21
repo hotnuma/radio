@@ -44,4 +44,4 @@ meson setup build -Dbuildtype=${buildtype}
 meson compile -C build
 sudo meson install -C build
 
-
+sudo cp ./radio.comp /usr/share/bash-completion/completions/radio

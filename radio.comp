@@ -4,9 +4,13 @@ _radio()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="-infos -list -stop -web"
 
     if [[ ${cur} == -* ]] ; then
+        opts="-infos -list -stop -web"
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    else
+        opts=$(radio -list)
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi

@@ -45,5 +45,5 @@ executable(
     install: true,
 )
 
-install_data(bash_completion, install_dir: bash_compdir)
+#sinstall_data(bash_completion, install_dir: bash_compdir)
 

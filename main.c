@@ -139,7 +139,9 @@ bool command_list(CIniFile *inifile)
     {
         CIniSection *iniSection = cinifile_section_at(inifile, i);
 
-        printf("%s\n", c_str(cinisection_name(iniSection)));
+        if (i > 0)
+            printf(" ");
+        printf("%s", c_str(cinisection_name(iniSection)));
     }
 
     return true;
