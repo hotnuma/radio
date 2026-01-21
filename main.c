@@ -23,13 +23,14 @@ static void usage_exit()
     printf("*** usage :\n");
 
     printf("%s \"name\"\n", APPNAME);
+    printf("%s -infos \"name\"\n", APPNAME);
+    printf("%s -web \"name\"\n", APPNAME);
+
     printf("%s \"https://my/radio/stream\"\n", APPNAME);
     printf("%s \"path/to/file.mp3\"\n", APPNAME);
 
-    printf("%s -infos \"name\"\n", APPNAME);
     printf("%s -list\n", APPNAME);
     printf("%s -stop\n", APPNAME);
-    printf("%s -web\n", APPNAME);
 
     printf("abort...\n");
 
