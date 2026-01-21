@@ -18,5 +18,6 @@ DISTFILES = \
     License.txt \
     meson.build \
     Readme.md \
+    radio.comp
 
 

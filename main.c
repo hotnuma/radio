@@ -24,11 +24,13 @@ static void usage_exit()
 
     printf("%s \"name\"\n", APPNAME);
     printf("%s -infos \"name\"\n", APPNAME);
+    printf("%s -show \"name\"\n", APPNAME);
     printf("%s -web \"name\"\n", APPNAME);
 
     printf("%s \"https://my/radio/stream\"\n", APPNAME);
     printf("%s \"path/to/file.mp3\"\n", APPNAME);
 
+    printf("%s -edit\n", APPNAME);
     printf("%s -list\n", APPNAME);
     printf("%s -stop\n", APPNAME);
 
@@ -103,6 +105,17 @@ bool config_find(CIniFile *inifile, RadioEntry *radio, const char *name)
 
     return true;
 }
+
+bool command_edit(const char *inipath)
+{
+    CStringAuto *cmd = cstr_new_size(128);
+    cstr_fmt(cmd, "geany \"%s\" &", inipath);
+
+    system(c_str(cmd));
+
+    return true;
+}
+
 
 bool command_infos(CIniFile *inifile, const char *name)
 {
@@ -287,7 +300,13 @@ int main(int argc, const char **argv)
 
     while (n < argc)
     {
-        if (strcmp(argv[n], "-infos") == 0)
+        if (strcmp(argv[n], "-edit") == 0)
+        {
+            command_edit(c_str(inipath));
+
+            break;
+        }
+        else if (strcmp(argv[n], "-infos") == 0)
         {
             if (++n >= argc)
                 usage_exit();
