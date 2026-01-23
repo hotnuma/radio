@@ -6,7 +6,7 @@ _radio()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     if [[ ${cur} == -* ]] ; then
-        opts="-edit -infos -list -show -stop -web"
+        opts="-edit -infos -list -show -stop -test -web"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     else

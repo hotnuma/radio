@@ -23,6 +23,7 @@ static void usage_exit()
     printf("*** usage :\n");
 
     printf("%s \"name\"\n", APPNAME);
+    printf("%s -test \"name\"\n", APPNAME);
     printf("%s -infos \"name\"\n", APPNAME);
     printf("%s -show \"name\"\n", APPNAME);
     printf("%s -web \"name\"\n", APPNAME);
@@ -240,7 +241,7 @@ bool command_web(CIniFile *inifile, const char *name)
     return true;
 }
 
-bool command_play(CIniFile *inifile, const char *name)
+bool command_play(CIniFile *inifile, const char *name, bool test)
 {
     if (!inifile || !name)
         return false;
@@ -271,17 +272,20 @@ bool command_play(CIniFile *inifile, const char *name)
     if (cstr_isempty(radio->volume))
         cstr_copy(radio->volume, DEFAULT_VOLUME);
 
-    if (!cstr_isempty(radio->af))
+    if (test == false)
     {
-        cstr_append(cmd, " -af \"");
-        cstr_append(cmd, c_str(radio->af));
-        cstr_append(cmd, "\"");
-    }
-    else if (!cstr_isempty(radio->volume))
-    {
-        cstr_append(cmd, " -af \"volume=volume=");
-        cstr_append(cmd, c_str(radio->volume));
-        cstr_append(cmd, "/100\"");
+        if (!cstr_isempty(radio->af))
+        {
+            cstr_append(cmd, " -af \"");
+            cstr_append(cmd, c_str(radio->af));
+            cstr_append(cmd, "\"");
+        }
+        else if (!cstr_isempty(radio->volume))
+        {
+            cstr_append(cmd, " -af \"volume=volume=");
+            cstr_append(cmd, c_str(radio->volume));
+            cstr_append(cmd, "/100\"");
+        }
     }
 
     cstr_append(cmd, " \"");
@@ -313,6 +317,7 @@ int main(int argc, const char **argv)
     if (argc < 2)
         usage_exit();
 
+    bool opt_test = false;
     int n = 1;
 
     while (n < argc)
@@ -359,6 +364,10 @@ int main(int argc, const char **argv)
 
             break;
         }
+        else if (strcmp(argv[n], "-test") == 0)
+        {
+            opt_test = true;
+        }
         else if (strcmp(argv[n], "-web") == 0)
         {
             if (++n >= argc)
@@ -376,7 +385,7 @@ int main(int argc, const char **argv)
             if (argv[n][0] == '-')
                 error_exit("invalid option");
 
-            if (!command_play(inifile, argv[n]))
+            if (!command_play(inifile, argv[n], opt_test))
                 error_exit("radio not found\n");
 
             break;
