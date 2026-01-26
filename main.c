@@ -232,7 +232,7 @@ bool command_web(CIniFile *inifile, const char *name)
     }
 
     CStringAuto *cmd = cstr_new_size(128);
-    cstr_fmt(cmd, "firefox \"%s\"", c_str(radio->web));
+    cstr_fmt(cmd, "firefox \"%s\" &", c_str(radio->web));
 
     system(c_str(cmd));
 
